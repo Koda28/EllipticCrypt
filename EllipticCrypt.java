@@ -6,20 +6,30 @@ class EllipticCrypt {
     static List<Integer> primeNumbers = new ArrayList<>();
 
     public static void main(String[] args) {
-        int p = 2467;
+        int p = 2213;
         primeNumbers = findPrimeNumbers((int) (p * Math.sqrt(p)));
-        int a = 313;
-        int b = 385;
+        int a = 467;
+        int b = 133;
+        System.out.println(multipleDotOnNumber_2(165, 59, 2479, a, p));
+        for (int i = 1; i < 2 * p; i++) {
+            System.out.println(i + " " + multipleDotOnNumber_2(15, 1116, i, a, p));
+        }
+        //System.out.println(multipleDotOnNumber(118,));
         TreeMap<Integer, List<Integer>> solution = (solution(a, b, p));
+        System.out.println(solution);
         int n = solution.lastKey();
         int x = solution.get(n).get(0);
         int y = solution.get(n).get(1);
+
         System.out.println("n -> " + n);
         System.out.println("x -> " +x);
         System.out.println("y -> " +y);
         Random r = new Random();
-        int na = (r.nextInt(n - 101) + 100);
-        int nb = (r.nextInt(n - 101) + 100);
+        int na = (r.nextInt(n));
+        int nb = (r.nextInt(n));
+        while(nb == na) {
+            nb = (r.nextInt(n));
+        }
         System.out.println("NA -> " + na);
         System.out.println("NB -> " + nb);
         var pa = findOpenKey(x, y, na, a, p);
@@ -181,7 +191,10 @@ class EllipticCrypt {
             x = i;
             for (int j = 0; j < p; j++) {
                 y = j;
-                if ((x * x * x + a * x + b) % p == (y * y) % p) {
+                if(x == 85 && y == 98){
+                    System.out.println();
+                }
+                if ((((long)x * x * x + (long) a * x + b) % p) == ((long) y * y) % p) {
                     int n = findMinN(x, y, a, p);
                     if (n != -1) {
                         map.put(n, List.of(x, y));
@@ -194,10 +207,12 @@ class EllipticCrypt {
     }
 
     private static int findMinN(int x, int y, int a, int p) {
-        for (int i = 1; i < p * Math.sqrt(p); i++) {
-            var res = multipleDotOnNumber_2(x, y, i, a, p);
+        var res = multipleDotOnNumber_2(x, y, 1, a, p);
+        for (int i = 2; i < p * Math.sqrt(p); i++) {
+            res = sumDots(res.get(0), res.get(1), x, y, a, p);
             if (res.get(0) == -1 && res.get(1) == -1) {
-                if (i > 120 && primeNumbers.contains(i)) {
+                System.out.println(i + " " + y + " " + x);
+                if (i > 10 && primeNumbers.contains(i)) {
                     return i;
                 } else {
                     return -1;
