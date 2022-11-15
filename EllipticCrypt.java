@@ -1,25 +1,27 @@
 package EllipticCrypt;
 
-import java.math.BigInteger;
 import java.util.*;
 
 class EllipticCrypt {
-    static List<Integer> primeNumbers = new ArrayList<Integer>();
+    static List<Integer> primeNumbers = new ArrayList<>();
 
     public static void main(String[] args) {
         int p = 2467;
+        primeNumbers = findPrimeNumbers((int) (p * Math.sqrt(p)));
         int a = 313;
         int b = 385;
-        int x = 207;
-        int y = 650;
-        int n = 241;
-        primeNumbers = findPrimeNumbers((int) (p * Math.sqrt(p)));
-        System.out.println(isGenerationalDot(x,y,n,a,p));
-        System.out.println(solution(a, b, p));
-
-
-        int nb = 5987;
-        int na = 10214;
+        TreeMap<Integer, List<Integer>> solution = (solution(a, b, p));
+        int n = solution.lastKey();
+        int x = solution.get(n).get(0);
+        int y = solution.get(n).get(1);
+        System.out.println("n -> " + n);
+        System.out.println("x -> " +x);
+        System.out.println("y -> " +y);
+        Random r = new Random();
+        int na = (r.nextInt(n - 101) + 100);
+        int nb = (r.nextInt(n - 101) + 100);
+        System.out.println("NA -> " + na);
+        System.out.println("NB -> " + nb);
         var pa = findOpenKey(x, y, na, a, p);
         System.out.println("PA -> " + pa);
         var pb = findOpenKey(x, y, nb, a, p);
@@ -39,15 +41,6 @@ class EllipticCrypt {
 
         }
     }
-
-    public static int powMod(int a, int n, int m) {
-        int res = 1;
-        for (int i = 1; i <= n; i++) {
-            res = (res * a) % m;
-        }
-        return res;
-    }
-
 
     public static List<Integer> multipleDotOnNumber(int x, int y, int n, int a, int p) {
         int x1 = x;
@@ -78,7 +71,6 @@ class EllipticCrypt {
                 if (res.get(0) != -1 && res.get(1) != -1) {
                     sum = sumDots(sum.get(0), sum.get(1), res.get(0), res.get(1), a, p);
                 }
-                continue;
             } else if (res.get(0) != -1 && res.get(1) != -1) {
                 sum.set(0, res.get(0));
                 sum.set(1, res.get(1));
@@ -133,9 +125,6 @@ class EllipticCrypt {
     }
 
     public static int divisionMod(int numerator, int denominator, int p) {
-        if(denominator == 0) {
-            System.out.println();
-        }
         int reverseNumber = reverseNumberByMod(denominator, p);
         if(reverseNumber == 0) {
             return -1;
@@ -162,7 +151,6 @@ class EllipticCrypt {
         r2 = a;
         s1 = 1;
         t2 = 1;
-        q = b / a;
         while (r2 != 0) {
             q = (r1 / r2);
             r1 = r1 - q * r2;
@@ -185,8 +173,9 @@ class EllipticCrypt {
         return t1;
     }
 
-    public static List<Integer> solution(int a, int b, int p) {
-        int x = 0;
+    public static TreeMap<Integer, List<Integer>> solution(int a, int b, int p) {
+        TreeMap<Integer, List<Integer>> map = new TreeMap<>();
+        int x;
         int y = 0;
         for (int i = 0; i < p; i++) {
             x = i;
@@ -195,22 +184,20 @@ class EllipticCrypt {
                 if ((x * x * x + a * x + b) % p == (y * y) % p) {
                     int n = findMinN(x, y, a, p);
                     if (n != -1) {
-                        return List.of(x, y, n);
+                        map.put(n, List.of(x, y));
                     }
                 }
             }
             System.out.println("x - " + x + " y -" + y);
         }
-        return null;
+        return map;
     }
 
     private static int findMinN(int x, int y, int a, int p) {
         for (int i = 1; i < p * Math.sqrt(p); i++) {
             var res = multipleDotOnNumber_2(x, y, i, a, p);
             if (res.get(0) == -1 && res.get(1) == -1) {
-                System.out.println(i);
-                if (i > p * 2 && primeNumbers.contains(i)) {
-
+                if (i > 120 && primeNumbers.contains(i)) {
                     return i;
                 } else {
                     return -1;
@@ -220,18 +207,17 @@ class EllipticCrypt {
         return -1;
     }
 
-    public static boolean isGenerationalDot(int x, int y, int n, int a, int p) {
+    /*public static boolean isGenerationalDot(int x, int y, int n, int a, int p) {
         SortedSet<Integer> set = new TreeSet<>();
         for (int i = 1; i < n; i++) {
             var res = multipleDotOnNumber_2(x, y, i, a, p);
             if(res.get(0) != -1)
             set.add(res.get(0));
         }
-        System.out.println(set);
-        System.out.println(p - set.size());
-        System.out.println(y);
         return set.size() == p;
     }
+
+     */
 
     public static List<Integer> findPrimeNumbers(int n) {
         List<Integer> list = new ArrayList<>();
@@ -272,12 +258,12 @@ class EllipticCrypt {
     }
 
     public static String toBin(int n) {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         while (n > 0) {
-            s += n % 2;
+            s.append(n % 2);
             n /= 2;
         }
-        return new StringBuilder(s).reverse().toString();
+        return new StringBuilder(s.toString()).reverse().toString();
     }
 
     public static List<Integer> factorizeToPow2(String s) {
